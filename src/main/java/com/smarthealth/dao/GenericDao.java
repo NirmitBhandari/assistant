@@ -1,0 +1,1 @@
+package com.smarthealth.dao;import java.util.*;/** Basic typed persistence contract. */public interface GenericDao<T,ID>{Optional<T> findById(ID id);List<T> findAll();T save(T value);boolean delete(ID id);}

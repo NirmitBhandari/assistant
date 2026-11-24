@@ -1,0 +1,7 @@
+﻿.env
+.env.*
+!.env.example
+/target/
+/data/
+/exports/
+dependency-reduced-pom.xml

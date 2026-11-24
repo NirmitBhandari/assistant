@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS patients(id BIGINT PRIMARY KEY, name VARCHAR(120) NOT NULL, age INT NOT NULL CHECK(age BETWEEN 1 AND 120), gender VARCHAR(30), medical_history VARCHAR(2000), email VARCHAR(180));
+CREATE TABLE IF NOT EXISTS users(id BIGINT PRIMARY KEY AUTO_INCREMENT, patient_id BIGINT NOT NULL, username VARCHAR(80) UNIQUE NOT NULL, password_hash VARCHAR(256) NOT NULL, salt VARCHAR(128) NOT NULL, FOREIGN KEY(patient_id) REFERENCES patients(id));
+ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);
+CREATE SEQUENCE IF NOT EXISTS patient_id_seq START WITH 10000;
+CREATE TABLE IF NOT EXISTS medicines(id BIGINT PRIMARY KEY AUTO_INCREMENT, patient_id BIGINT NOT NULL, name VARCHAR(120) NOT NULL, dosage VARCHAR(80), instructions VARCHAR(500), start_date DATE, end_date DATE, frequency VARCHAR(80), FOREIGN KEY(patient_id) REFERENCES patients(id));
+CREATE TABLE IF NOT EXISTS reminders(id BIGINT PRIMARY KEY AUTO_INCREMENT, medicine_id BIGINT NOT NULL, reminder_time TIMESTAMP NOT NULL, schedule VARCHAR(100), status VARCHAR(30) NOT NULL DEFAULT 'PENDING', FOREIGN KEY(medicine_id) REFERENCES medicines(id));
+CREATE TABLE IF NOT EXISTS sensor_data(id BIGINT PRIMARY KEY AUTO_INCREMENT, patient_id BIGINT NOT NULL, heart_rate INT NOT NULL, systolic_bp INT NOT NULL, diastolic_bp INT NOT NULL, spo2 INT NOT NULL, recorded_at TIMESTAMP NOT NULL, source VARCHAR(80), FOREIGN KEY(patient_id) REFERENCES patients(id));
+CREATE TABLE IF NOT EXISTS health_results(id BIGINT PRIMARY KEY AUTO_INCREMENT, patient_id BIGINT NOT NULL, risk_level VARCHAR(20), risk_score INT, guidance VARCHAR(2000), prevention_tips VARCHAR(4000), generated_at TIMESTAMP NOT NULL, FOREIGN KEY(patient_id) REFERENCES patients(id));
+CREATE INDEX IF NOT EXISTS idx_sensor_patient_time ON sensor_data(patient_id, recorded_at); CREATE INDEX IF NOT EXISTS idx_reminder_time ON reminders(reminder_time, status);

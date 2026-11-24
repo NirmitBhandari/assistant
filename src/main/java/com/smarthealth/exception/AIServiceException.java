@@ -1,0 +1,1 @@
+package com.smarthealth.exception;public class AIServiceException extends HealthAppException{public AIServiceException(String m){super(m);}public AIServiceException(String m,Throwable c){super(m,c);}}

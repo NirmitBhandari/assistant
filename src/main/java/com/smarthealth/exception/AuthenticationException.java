@@ -1,0 +1,1 @@
+package com.smarthealth.exception;public class AuthenticationException extends HealthAppException{public AuthenticationException(String m){super(m);}public AuthenticationException(String m,Throwable c){super(m,c);}}

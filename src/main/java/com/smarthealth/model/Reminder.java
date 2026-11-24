@@ -1,0 +1,6 @@
+package com.smarthealth.model;
+import java.time.LocalDateTime;import java.util.Objects;
+/** Scheduled medicine notification. */
+public class Reminder {public enum NotificationStatus{PENDING,SENT,ACKNOWLEDGED,MISSED}private long id,medicineId;private LocalDateTime time;private String frequency;private NotificationStatus notificationStatus=NotificationStatus.PENDING;
+ public Reminder(){}public Reminder(long id,long medicineId,LocalDateTime time,String frequency,NotificationStatus status){this.id=id;this.medicineId=medicineId;this.time=time;this.frequency=frequency;this.notificationStatus=status;}
+ public long getId(){return id;}public void setId(long v){id=v;}public long getMedicineId(){return medicineId;}public void setMedicineId(long v){medicineId=v;}public LocalDateTime getTime(){return time;}public void setTime(LocalDateTime v){time=v;}public String getFrequency(){return frequency;}public void setFrequency(String v){frequency=v;}public NotificationStatus getNotificationStatus(){return notificationStatus;}public void setNotificationStatus(NotificationStatus v){notificationStatus=v;}@Override public String toString(){return "Reminder{"+id+", "+time+", "+notificationStatus+"}";}@Override public boolean equals(Object o){return o instanceof Reminder r&&id==r.id;}@Override public int hashCode(){return Objects.hash(id);}}

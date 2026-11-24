@@ -1,0 +1,1 @@
+package com.smarthealth.ai;import com.smarthealth.exception.AIServiceException;public interface AIService{String getRiskAssessment(String prompt)throws AIServiceException;default String answerQuestion(String systemPrompt,String userPrompt)throws AIServiceException{return getRiskAssessment(systemPrompt+"\n"+userPrompt);}}

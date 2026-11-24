@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wellnest | Smart Health</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="login" class="login-shell">
+    <form id="loginForm" class="login-card">
+      <div class="brand-mark">W</div>
+      <p class="eyebrow">YOUR PERSONAL HEALTH COMPANION</p>
+      <h1>Welcome to Wellnest</h1>
+      <p class="muted">A calmer way to stay close to your health.</p>
+      <div id="demoLoginFields" class="demo-login-fields">
+        <label>Username<input name="username" autocomplete="username" required></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="primary">Sign in</button>
+        <small id="demoLoginHint">Demo account: demo / demo123</small>
+      </div>
+      <div id="loginDivider" class="login-divider hidden"><span>or</span></div>
+      <div id="googleLoginBlock" class="google-login-block hidden"><div id="googleButton"></div><div id="googleLoginError" class="error" role="alert"></div></div>
+      <div id="googleSetupNotice" class="google-setup-notice hidden"></div>
+      <section id="googleProfileSetup" class="google-profile-setup hidden"><p>Finish setting up your Wellnest profile</p><label>Age<input id="googleAge" type="number" min="1" max="120" autocomplete="off"></label><small>Your age is saved to your Wellnest profile; Google does not provide it.</small><button id="completeGoogleSignup" type="button" class="primary">Continue with Google</button></section>
+      <div id="loginError" class="error"></div>
+    </form>
+  </div>
+
+  <div id="app" class="layout hidden">
+    <aside class="sidebar">
+      <div class="brand"><span>W</span><b>wellnest</b></div>
+      <div class="profile"><div class="avatar" id="avatar">N</div><div><b id="sideName">Patient</b><small>Personal account</small></div></div>
+      <nav aria-label="Main navigation">
+        <a class="active" href="#home" data-view="home" title="home"><span class="nav-icon">H</span><span>Home</span></a>
+        <a href="#medications" data-view="medications" title="medications"><span class="nav-icon">M</span><span>Medications</span></a>
+        <a href="#monitor" data-view="monitor" title="monitor"><span class="nav-icon">+</span><span>Health Monitor</span></a>
+        <a href="#risk" data-view="risk" title="risk"><span class="nav-icon">R</span><span>Risk Assessment</span></a>
+        <a href="#insights" data-view="insights" title="insights"><span class="nav-icon">I</span><span>Insights</span></a>
+        <a href="#ask" data-view="ask" title="Ask Wellnest"><span class="nav-icon">?</span><span>Ask Wellnest</span></a>
+        <a href="#profile" data-view="profile" title="profile"><span class="nav-icon">P</span><span>Profile</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help"><span class="help-icon">i</span><span><b>Here for you</b><small>Small steps add up.</small></span></div>
+        <button id="logout" class="quiet">Sign out</button>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div><p id="today" class="eyebrow"></p><h1 id="pageTitle">Good day</h1><p id="pageSubtitle" class="muted">Your health, at a glance.</p></div>
+        <div class="header-right"><span id="mode" class="badge">Demo Data</span><div class="avatar small" id="headerAvatar">N</div></div>
+      </header>
+
+      <div class="demo-banner home-only">
+        <span class="banner-mark">W</span><div><b>Your health, at a glance</b><p>Recent readings, medicines, and follow-up reminders in one place.</p></div>
+        <button id="spike" class="outline">Simulate abnormal reading</button>
+      </div>
+
+      <div class="home-only">
+        <section class="cards">
+          <article class="metric"><div class="metric-head"><span>Active medicines</span><span class="icon lilac">M</span></div><strong id="medProgress">0</strong><small class="muted">Saved to your care list</small></article>
+          <article class="metric"><div class="metric-head"><span>Heart rate</span><span class="icon rose">HR</span></div><strong><span id="heartRate">--</span><small> bpm</small></strong><div id="heartRateTime" class="metric-foot">No reading yet</div></article>
+          <article class="metric"><div class="metric-head"><span>Blood oxygen</span><span class="icon blue">O2</span></div><strong><span id="spo2">--</span><small> %</small></strong><div id="spo2Time" class="metric-foot">No reading yet</div></article>
+          <article class="metric risk-card"><div class="metric-head"><span>Screening indicator</span><span class="icon sand">!</span></div><strong><span id="riskScore">--</span><small> / 100</small></strong><div><span id="riskPill" class="risk-pill low">Awaiting reading</span></div></article>
+        </section>
+
+        <section class="main-grid">
+          <article class="panel chart-panel">
+            <div class="panel-title"><div><h2>Heart-rate trend</h2><p id="homeTrendNote" class="muted">Your recent readings</p></div><button class="text-button" data-open="monitor">View all trends</button></div>
+            <div class="chart-wrap"><canvas id="chart"></canvas></div>
+            <div class="chart-legend"><span><i></i> Heart rate (bpm)</span><small>Latest 7 days</small></div>
+          </article>
+          <article class="panel reminders">
+            <div class="panel-title"><div><h2>Upcoming reminders</h2><p class="muted">Medicine schedule</p></div><span class="round-icon">R</span></div>
+            <div id="reminderList" class="reminder-list"></div>
+            <button id="reminderNow" class="text-button">Trigger a demo reminder</button>
+          </article>
+        </section>
+
+        <section class="lower-grid">
+          <article class="panel meds" id="medications">
+            <div class="panel-title"><div><h2>Your medications</h2><p class="muted">Your saved medicines and schedules</p></div><button id="addMedicine" class="outline">Add medicine</button></div>
+            <div id="medicineList" class="medicine-list"></div>
+          </article>
+          <article class="panel insights">
+            <div class="panel-title"><div><h2>Latest health signal</h2><span class="icon lilac">I</span></div></div>
+            <p id="guidance">Add a reading to see a data-based health signal.</p>
+            <ul id="tips"></ul>
+            <button class="text-button" data-open="insights">Review signals and checks</button>
+          </article>
+        </section>
+      </div>
+
+      <section class="page-section hidden" id="page-medications">
+        <article class="panel"><div class="panel-title"><div><h2>Medication schedule</h2><p class="muted">Add a medicine and set the time for its reminder.</p></div><button class="outline add-medicine-page">Add medicine</button></div><div id="allMedicineList" class="medicine-list"></div></article>
+      </section>
+
+      <section class="page-section hidden" id="page-monitor">
+        <article class="panel">
+          <div class="panel-title"><div><h2>Health monitor</h2><p class="muted">Save a reading and compare each measurement on its own scale.</p></div><label class="range-control">Show <select id="trendRange"><option value="7">7 days</option><option value="1">24 hours</option></select></label></div>
+          <form id="readingForm" class="inline-form">
+            <label>Heart rate (bpm)<input type="number" name="heartRate" min="20" max="250" value="72" required></label>
+            <label>Systolic BP<input type="number" name="systolicBP" min="60" max="260" value="120" required></label>
+            <label>Diastolic BP<input type="number" name="diastolicBP" min="30" max="160" value="80" required></label>
+            <label>SpO2 (%)<input type="number" name="spo2" min="50" max="100" value="98" required></label>
+            <button class="primary">Save reading and assess</button>
+          </form>
+          <div class="reading-summary" id="monitorSummary"></div>
+          <div class="trend-grid">
+            <article class="trend-card"><h3>Heart rate</h3><p class="muted">beats per minute</p><div class="trend-chart"><canvas id="monitorHeartChart"></canvas></div></article>
+            <article class="trend-card"><h3>Blood pressure</h3><p class="muted">systolic and diastolic, mmHg</p><div class="trend-chart"><canvas id="monitorBpChart"></canvas></div></article>
+            <article class="trend-card"><h3>Blood oxygen</h3><p class="muted">SpO2 percentage</p><div class="trend-chart"><canvas id="monitorOxygenChart"></canvas></div></article>
+          </div>
+          <div class="panel-title recent-title"><div><h2>Recent readings</h2><p class="muted">Newest first</p></div></div><div id="readingList" class="reading-list"></div>
+        </article>
+      </section>
+
+      <section class="page-section hidden" id="page-risk">
+        <div class="page-intro"><p class="eyebrow">SCREENING SUMMARY</p><h2>Risk assessment</h2><p class="muted">A signal from the readings collected so far, not a diagnosis or a probability.</p><button id="assessLatest" class="outline">Reassess latest reading</button></div>
+        <div id="riskDetails" class="risk-content"></div>
+      </section>
+
+      <section class="page-section hidden" id="page-insights">
+        <div class="page-intro"><p class="eyebrow">BASED ON YOUR RECORDED DATA</p><h2>Health insights</h2><p class="muted">Possible patterns to verify and discuss with a qualified health professional.</p></div>
+        <div id="insightReadings" class="insight-summary"></div>
+        <div id="insightSignals" class="signal-grid"></div>
+        <article class="panel followup-panel"><div class="panel-title"><div><h2>What to check next</h2><p class="muted">Practical follow-up based on the readings above</p></div></div><div id="insightActions" class="action-list"></div></article>
+        <p class="source-note">Reference ranges are screening context only: <a href="https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings" target="_blank" rel="noreferrer">American Heart Association blood-pressure categories</a>, <a href="https://www.nhlbi.nih.gov/health/heart/heart-beats" target="_blank" rel="noreferrer">NHLBI resting heart-rate overview</a>, and <a href="https://medlineplus.gov/lab-tests/pulse-oximetry/" target="_blank" rel="noreferrer">MedlinePlus pulse-oximetry guidance</a>.</p>
+        <p class="disclaimer">Educational information only. It cannot diagnose a condition or replace care from a clinician. If you have severe symptoms, seek urgent medical care.</p>
+      </section>
+
+      <section class="page-section hidden" id="page-ask">
+        <div class="page-intro"><p class="eyebrow">A PLACE TO EXPLORE</p><h2>Ask a health question</h2><p class="muted">Ask about your readings, common health topics, or what to discuss with a clinician.</p></div>
+        <article class="panel ask-panel">
+          <div class="ask-intro"><span class="ask-mark">W</span><div class="ask-intro-copy"><h2>How can I help?</h2><p class="muted">Type any health question in the box below. Suggested prompts are optional; you can ask follow-up questions too.</p></div><span id="askMode" class="ask-mode">Nemotron unavailable</span></div><p id="askModeNote" class="ask-mode-note">The NVIDIA key is missing. Add it to the local .env file and restart to enable open-ended answers.</p><div class="prompt-chips" aria-label="Suggested questions"><button type="button" class="prompt-chip">What do my latest readings mean?</button><button type="button" class="prompt-chip">What does high blood pressure mean?</button><button type="button" class="prompt-chip">What symptoms need urgent help?</button><button type="button" class="prompt-chip">What should I ask my doctor?</button></div>
+          <label class="context-toggle"><input id="includeReadings" type="checkbox"><span><b>Use my recent readings when relevant</b><small>Optional. Checked readings are sent to NVIDIA with your question.</small></span></label><div id="chatMessages" class="chat-messages" aria-live="polite"><div class="chat-bubble assistant"><b>Wellnest</b><p>I can explain health information and summarize your saved readings. I cannot diagnose disease or predict with certainty what illness someone may develop. What would you like to understand?</p></div></div>
+          <form id="askForm" class="ask-form"><label class="sr-only" for="askInput">Your health question</label><textarea id="askInput" name="question" rows="2" maxlength="1200" placeholder="Type any health question here..." required></textarea><button id="askSubmit" class="primary">Ask</button></form>
+          <p class="ask-disclaimer">Educational information only, not a diagnosis. Live AI sends your question and recent chat context to NVIDIA. Recent readings are sent only when you check the box above. Avoid identifying details. For severe or rapidly worsening symptoms, contact emergency services.</p>
+        </article>
+      </section>
+
+      <section class="page-section hidden" id="page-profile">
+        <article class="panel"><div class="panel-title"><div><h2>Your profile</h2><p class="muted">Account and report tools</p></div></div><p>Signed in as <b id="profileName">Patient</b></p><div class="notice-box">Reminders appear in this website and can use browser notifications while it is open. SMS or phone messaging is not configured.</div><div class="profile-actions"><button id="enableNotifications" class="outline">Enable browser notifications</button><button id="exportReport" class="outline">Export health report</button></div></article>
+      </section>
+
+      <footer>Wellnest | Educational tool, not a medical diagnosis.</footer>
+    </main>
+  </div>
+
+  <dialog id="medicineDialog"><form method="dialog" id="medicineForm"><div class="panel-title"><h2>Add a medicine</h2><button class="quiet" value="cancel">Close</button></div><label>Medicine name<input name="name" required placeholder="e.g. Vitamin C"></label><label>Dosage<input name="dosage" placeholder="e.g. 500 mg"></label><label>Instructions<input name="instructions" placeholder="As directed by your clinician"></label><label>Frequency<select name="frequency"><option>Daily</option><option>Weekly</option><option>Once</option></select></label><label>Reminder time<input name="reminderTime" type="time" required></label><div class="dialog-actions"><button class="quiet" value="cancel">Cancel</button><button class="primary" id="saveMedicine" value="default">Save medicine</button></div></form></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

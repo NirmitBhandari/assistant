@@ -1,0 +1,1 @@
+package com.smarthealth.ai;public final class AIServiceFactory{private AIServiceFactory(){}public static AIService create(boolean demo,boolean real,String key,String provider,String url,String model){if(demo||!real||key==null||key.isBlank())return new MockAIService();return new NvidiaNemotronAIService(key,url,model);}}

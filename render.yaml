@@ -1,0 +1,19 @@
+﻿services:
+  - type: web
+    name: wellnest-health-assistant
+    runtime: docker
+    plan: starter
+    healthCheckPath: /
+    disk:
+      name: wellnest-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: APP_DEMO_MODE
+        value: "false"
+      - key: APP_DB_URL
+        value: jdbc:h2:file:/var/data/healthdb
+      - key: APP_AI_CHAT_USE_REAL
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"

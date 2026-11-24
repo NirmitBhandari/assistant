@@ -1,0 +1,1 @@
+package com.smarthealth.util;/** Lightweight success/error value. */public record Result<T>(T value,String error){public static <T> Result<T> ok(T v){return new Result<>(v,null);}public static <T> Result<T> error(String e){return new Result<>(null,e);}public boolean isSuccess(){return error==null;}}

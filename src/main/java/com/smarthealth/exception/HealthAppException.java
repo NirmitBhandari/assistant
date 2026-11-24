@@ -1,0 +1,1 @@
+package com.smarthealth.exception;/** Base exception for expected application failures. */ public class HealthAppException extends RuntimeException{public HealthAppException(String m){super(m);}public HealthAppException(String m,Throwable c){super(m,c);}}
