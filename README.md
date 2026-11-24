@@ -20,11 +20,11 @@ Google sign-in is optional and needs a Google OAuth web client ID:
 4. The login page will show Google's button when configured.
 ## Host on Render
 
-The repository includes a Dockerfile and `render.yaml` configured for a small Render web service with a 1 GB persistent disk. It disables demo seed accounts and stores H2 at `/var/data/healthdb` so readings survive restarts and deploys. This single-instance setup is suitable for a personal/student demo; it is not a highly available production database.
+The repository includes a Dockerfile and `render.yaml` configured for a small Render web service with a 1 GB persistent disk. It disables demo seed accounts and stores H2 at `/var/data/healthdb` so readings survive restarts and deploys. Configure `GOOGLE_CLIENT_ID` in Render to enable user sign-in. This single-instance setup is for a student demo, not production health records.
 
 1. Create a private GitHub repository and upload the project. Keep `.env` out of Git; `.gitignore` already excludes it.
 2. In Render, create a Blueprint from that GitHub repository and apply `render.yaml`.
-3. After Render assigns the public URL, add its HTTPS origin to the Google OAuth client. Add `GOOGLE_CLIENT_ID` and, if you want live chat, `NVIDIA_API_KEY` in Render's Environment settings. Never put secrets in `render.yaml`.
+3. Enter your `GOOGLE_CLIENT_ID` and, if you want live AI chat, a rotated `NVIDIA_API_KEY` when Render prompts for them. Never put secret values in `render.yaml` or Git.
 4. Redeploy and verify sign-in and persistence.
 
 Check Render's current pricing before deploying. See [Render Java hosting](https://render.com/hosting/java), [Render disks](https://render.com/docs/disks), and [Render pricing](https://render.com/pricing). Services with persistent disks are single-instance and cannot scale horizontally.
