@@ -1,6 +1,7 @@
 ﻿.env
 .env.*
 !.env.example
+*.enc
 /target/
 /data/
 /exports/
