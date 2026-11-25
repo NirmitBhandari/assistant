@@ -111,7 +111,15 @@ function renderMonitor(){
 $('#trendRange').addEventListener('change',renderMonitor);
 
 const promptChips=document.querySelectorAll('.prompt-chip');
-function addChatMessage(role,text){const bubble=document.createElement('div');bubble.className=`chat-bubble ${role}`;const label=document.createElement('b');label.textContent=role==='user'?'You':'Wellnest';const body=document.createElement('p');body.textContent=text;bubble.append(label,body);$('#chatMessages').append(bubble);$('#chatMessages').scrollTop=$('#chatMessages').scrollHeight}
+function renderAssistantMarkdown(target,source){
+  const lines=String(source??'').replace(/\r/g,'').split('\n');let list=null,table=null;
+  const flushList=()=>{if(!list)return;target.append(list);list=null};
+  const flushTable=()=>{if(!table)return;const t=document.createElement('table');t.className='chat-table';table.forEach((cells,i)=>{if(i===1&&cells.every(c=>/^:?-{3,}:?$/.test(c)))return;const tr=document.createElement('tr');cells.forEach(value=>{const cell=document.createElement(i===0?'th':'td');cell.append(renderInlineMarkdown(value));tr.append(cell)});t.append(tr)});target.append(t);table=null};
+  const inline=(text)=>{const frag=document.createDocumentFragment(),re=/\*\*(.+?)\*\*|\*(.+?)\*|`([^`]+)`/g;let at=0,m;while((m=re.exec(text))){frag.append(document.createTextNode(text.slice(at,m.index)));const el=document.createElement(m[1]?'strong':m[2]?'em':'code');el.textContent=m[1]||m[2]||m[3];frag.append(el);at=re.lastIndex}frag.append(document.createTextNode(text.slice(at)));return frag};
+  function renderInlineMarkdown(text){return inline(text)}
+  for(const raw of lines){const line=raw.trim();const cells=line.startsWith('|')&&line.endsWith('|')?line.slice(1,-1).split('|').map(c=>c.trim()):null;if(cells){flushList();if(!table)table=[];table.push(cells);continue}flushTable();if(!line){flushList();continue}const heading=line.match(/^(#{1,3})\s+(.+)$/);if(heading){flushList();const h=document.createElement(`h${Math.min(heading[1].length+2,5)}`);h.append(inline(heading[2]));target.append(h);continue}const item=line.match(/^[-*]\s+(.+)$/);if(item){if(!list)list=document.createElement('ul');const li=document.createElement('li');li.append(inline(item[1]));list.append(li);continue}flushList();const p=document.createElement('p');p.append(inline(line));target.append(p)}flushList();flushTable();
+}
+function addChatMessage(role,text){const bubble=document.createElement('div');bubble.className=`chat-bubble ${role}`;const label=document.createElement('b');label.textContent=role==='user'?'You':'Wellnest';bubble.append(label);if(role==='assistant')renderAssistantMarkdown(bubble,text);else{const body=document.createElement('p');body.textContent=text;bubble.append(body)}$('#chatMessages').append(bubble);$('#chatMessages').scrollTop=$('#chatMessages').scrollHeight}
 function askLocal(question){
   const q=question.toLowerCase().trim();const rows=readings;const latest=rows.at(-1);const analysis=deriveSignals(rows);const isDemo=rows.some(r=>/spike|simulat|demo|seed/i.test(String(r.source||'')));
   if(/^(hi|hello|hey|good morning|good afternoon|good evening|how are you|how are you\?)\b/.test(q))return "Hi! I'm here to help you understand health information and your saved readings. What would you like to know?";
