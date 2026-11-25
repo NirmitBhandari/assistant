@@ -15,15 +15,15 @@
       <h1>Welcome to Wellnest</h1>
       <p class="muted">A calmer way to stay close to your health.</p>
       <div id="demoLoginFields" class="demo-login-fields">
-        <label>Username<input name="username" autocomplete="username" required></label>
-        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
-        <button class="primary">Sign in</button>
+        <label>Email<input name="email" type="email" autocomplete="email" required></label>
+        <label id="signupNameLabel" class="hidden">Name<input name="name" autocomplete="name"></label>
+        <label id="signupAgeLabel" class="hidden">Age<input name="age" type="number" min="1" max="120"></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required></label>
+        <button id="authSubmit" class="primary">Sign in</button>
+        <button id="authToggle" type="button" class="quiet">Create an account</button>
         <small id="demoLoginHint">Demo account: demo / demo123</small>
       </div>
       <div id="loginDivider" class="login-divider hidden"><span>or</span></div>
-      <div id="googleLoginBlock" class="google-login-block hidden"><div id="googleButton"></div><div id="googleLoginError" class="error" role="alert"></div></div>
-      <div id="googleSetupNotice" class="google-setup-notice hidden"></div>
-      <section id="googleProfileSetup" class="google-profile-setup hidden"><p>Finish setting up your Wellnest profile</p><label>Age<input id="googleAge" type="number" min="1" max="120" autocomplete="off"></label><small>Your age is saved to your Wellnest profile; Google does not provide it.</small><button id="completeGoogleSignup" type="button" class="primary">Continue with Google</button></section>
       <div id="loginError" class="error"></div>
     </form>
   </div>

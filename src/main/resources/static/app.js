@@ -12,31 +12,9 @@ async function api(url, options={}) {
   return response.status===204?null:response.json();
 }
 function showLogin(){ $('#login').classList.remove('hidden'); $('#app').classList.add('hidden'); if(events)events.close(); configureLogin(); }
-async function configureLogin(){
-  try{
-    const config=await api('/api/auth/google/config');
-    $('#demoLoginFields').classList.toggle('hidden',!config.demo);$('#loginDivider').classList.toggle('hidden',!config.demo||!config.googleEnabled);
-    $('#demoLoginHint').classList.toggle('hidden',!config.demo);
-    if(!config.googleEnabled){$('#googleLoginBlock').classList.add('hidden');$('#googleSetupNotice').classList.remove('hidden');$('#googleSetupNotice').textContent='Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID to your local .env file to enable it.';return}
-    $('#googleSetupNotice').classList.add('hidden');$('#googleLoginBlock').classList.remove('hidden');
-    if(googleInitialized)return;
-    const render=()=>{if(!window.google?.accounts?.id)return;google.accounts.id.initialize({client_id:config.googleClientId,callback:handleGoogleCredential,auto_select:false});google.accounts.id.renderButton($('#googleButton'),{theme:'outline',size:'large',shape:'rectangular',text:'continue_with',width:314});googleInitialized=true};
-    if(window.google?.accounts?.id){render();return}
-    const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;script.defer=true;script.onload=render;script.onerror=()=>{$('#googleLoginError').textContent='Google sign-in could not load. Check your connection and try again.'};document.head.append(script);
-  }catch(error){if(!error.message.includes('401'))$('#loginError').textContent='Login options could not be loaded. Refresh and try again.'}
-}
-async function handleGoogleCredential(response){pendingGoogleCredential=response.credential;await sendGoogleCredential(null)}
-async function sendGoogleCredential(age){
-  $('#googleLoginError').textContent='';
-  try{
-    const response=await fetch('/api/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:pendingGoogleCredential,age})});let result={};try{result=await response.json()}catch{}
-    if(response.status===428&&result.profileRequired){$('#googleProfileSetup').classList.remove('hidden');$('#googleAge').focus();$('#googleLoginError').textContent=`Welcome, ${result.name}. Enter your age to create your profile.`;return}
-    if(!response.ok)throw Error(result.message||`Google sign-in failed (${response.status})`);
-    pendingGoogleCredential='';$('#googleProfileSetup').classList.add('hidden');window.currentPatientId=result.patientId;showApp();
-  }catch(error){$('#googleLoginError').textContent=error.message}
-}
-$('#completeGoogleSignup').addEventListener('click',()=>{const age=Number($('#googleAge').value);if(!Number.isInteger(age)||age<1||age>120){$('#googleLoginError').textContent='Enter an age between 1 and 120.';return}sendGoogleCredential(age)});
-function showApp(){
+let authMode='login';
+async function configureLogin(){try{const config=await api('/api/auth/google/config');$('#demoLoginHint').classList.toggle('hidden',!config.demo);$('#authToggle').classList.toggle('hidden',!config.supabaseEnabled);$('#loginDivider').classList.add('hidden');if(!config.supabaseEnabled)$('#loginError').textContent='Supabase is not configured. Add SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.';}catch(error){if(!error.message.includes('401'))$('#loginError').textContent='Could not load sign-in settings.'}}
+$('#authToggle').addEventListener('click',()=>{authMode=authMode==='login'?'signup':'login';$('#authSubmit').textContent=authMode==='login'?'Sign in':'Create account';$('#authToggle').textContent=authMode==='login'?'Create an account':'I already have an account';$('#signupNameLabel').classList.toggle('hidden',authMode!=='signup');$('#signupAgeLabel').classList.toggle('hidden',authMode!=='signup');$('#loginForm [name=name]').required=authMode==='signup';$('#loginForm [name=age]').required=authMode==='signup';$('#loginError').textContent=''});function showApp(){
   $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
   $('#today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
   const requested=location.hash.slice(1); go(['home','medications','monitor','risk','insights','ask','profile'].includes(requested)?requested:'home');
@@ -57,7 +35,7 @@ function go(view){
 document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();go(a.dataset.view);history.replaceState(null,'','#'+a.dataset.view)}));
 document.addEventListener('click',e=>{const button=e.target.closest('[data-open]');if(!button)return;go(button.dataset.open);history.replaceState(null,'','#'+button.dataset.open)});
 
-$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginError').textContent='';try{const user=await api('/api/auth/login',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});window.currentPatientId=user.patientId;showApp()}catch(error){$('#loginError').textContent=error.message}});
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginError').textContent='';try{const values=Object.fromEntries(new FormData(e.target));const user=await api(authMode==='login'?'/api/auth/login':'/api/auth/signup',{method:'POST',body:JSON.stringify(values)});if(user.needsEmailConfirmation){$('#loginError').textContent=user.message;return}window.currentPatientId=user.patientId;showApp()}catch(error){$('#loginError').textContent=error.message}});
 $('#logout').onclick=async()=>{try{await api('/api/auth/logout',{method:'POST'});showLogin()}catch(e){toast(e.message)}};
 
 async function refresh(){
